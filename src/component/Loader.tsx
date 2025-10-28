@@ -1,8 +1,18 @@
 import React from "react";
 import { FaSpinner } from "react-icons/fa6";
 
-const Loader = ({ text = "Loading...", size = "2xl", color = "text-purple-700" }) => {
-  const sizeClasses = {
+interface LoaderProps {
+  text?: string;
+  size?: "sm" | "md" | "lg" | "xl" | "2xl";
+  color?: string;
+}
+
+const Loader: React.FC<LoaderProps> = ({
+  text = "Loading...",
+  size = "2xl",
+  color = "text-purple-700",
+}) => {
+  const sizeClasses: Record<NonNullable<LoaderProps["size"]>, string> = {
     sm: "text-lg",
     md: "text-2xl",
     lg: "text-3xl",

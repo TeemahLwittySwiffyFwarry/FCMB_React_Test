@@ -1,21 +1,30 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+} from "react-router-dom";
 import "./index.css";
 import App from "./App";
 import RegistrationPage from "./pages/RegistrationPage";
-import PaginationList from "./pages/PaginatedList";
+import PaginatedList from "./pages/PaginatedList";
 
-// 🔒 Protected Route Component
-const ProtectedRoute = ({ children }) => {
+// ✅ Protected Route Component (typed)
+interface ProtectedRouteProps {
+  children: ReactNode;
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const user = localStorage.getItem("user");
   if (!user) {
     // redirect if not logged in
     return <Navigate to="/" replace />;
   }
-  return children;
+  return <>{children}</>;
 };
 
+// ✅ Router Configuration
 const router = createBrowserRouter([
   {
     path: "/",
@@ -29,7 +38,7 @@ const router = createBrowserRouter([
         path: "/list",
         element: (
           <ProtectedRoute>
-            <PaginationList />
+            <PaginatedList />
           </ProtectedRoute>
         ),
       },
@@ -37,7 +46,8 @@ const router = createBrowserRouter([
   },
 ]);
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+// ✅ Render
+ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <RouterProvider router={router} />
   </React.StrictMode>
