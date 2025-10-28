@@ -1,17 +1,72 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
+import axios from "axios";
 import Sidebar from "../component/Sidebar";
+import Loader from "../component/Loader"; // ✅ import reusable loader
 import { FaBars } from "react-icons/fa";
-import useUsers from "../hooks/useUser"; // ✅ import custom hook
 
 const PaginatedList = () => {
-  const [page, setPage] = useState(2);
-  const { users, totalPages, loading, error } = useUsers(page);
+  const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  // ✅ Fetch users
+  const fetchUsers = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`https://reqres.in/api/users?page=${page}`, {
+        headers: { "x-api-key": "reqres-free-v1" },
+      });
+      setUsers(res.data.data);
+      setTotalPages(res.data.total_pages);
+    } catch (err) {
+      console.error("Error fetching users:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [page]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) setPage(newPage);
+  };
+
+  const userDetails = useMemo(() => {
+    if (!selectedUser) return null;
+    return (
+      <>
+        <img
+          src={selectedUser.avatar}
+          alt={selectedUser.first_name}
+          className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl mb-4 border border-gray-200 shadow-sm mt-8"
+        />
+        <div className="w-full max-w-xs space-y-3 text-left leading-relaxed">
+          <p className="text-sm text-gray-700">
+            <strong>Email:</strong> {selectedUser.email}
+          </p>
+          <p className="text-sm text-gray-700">
+            <strong>First Name:</strong> {selectedUser.first_name}
+          </p>
+          <p className="text-sm text-gray-700">
+            <strong>Last Name:</strong> {selectedUser.last_name}
+          </p>
+
+          <button className="bg-gradient-to-r from-purple-800 through-purple-700 to-pink-700 hover:opacity-90 text-white font-semibold py-2 rounded w-full transition-all duration-300">
+            Proceed
+          </button>
+        </div>
+      </>
+    );
+  }, [selectedUser]);
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col md:flex-row font-sans">
-      {/* Sidebar (collapsible on mobile) */}
+      {/* Sidebar */}
       <div
         className={`fixed md:static inset-y-0 left-0 bg-white z-20 w-64 transform ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -27,7 +82,7 @@ const PaginatedList = () => {
         ></div>
       )}
 
-      {/* Main content */}
+      {/* Main */}
       <main className="flex-1 p-4 sm:p-6 md:p-8 bg-white md:ml-0">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
@@ -55,14 +110,12 @@ const PaginatedList = () => {
           </div>
         </div>
 
-        {/* User list grid */}
+        {/* User grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left: List */}
-          <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-4 space-y-3 overflow-y-auto">
+          {/* Left: User list */}
+          <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-4 space-y-3 overflow-y-auto min-h-[400px]">
             {loading ? (
-              <p className="text-center text-gray-500">Loading users...</p>
-            ) : error ? (
-              <p className="text-center text-red-500">{error}</p>
+              <Loader text="Loading users..." size="xl" color="text-purple-700" />
             ) : users.length > 0 ? (
               users.map((user) => (
                 <div
@@ -99,33 +152,10 @@ const PaginatedList = () => {
             )}
           </div>
 
-          {/* Right: Selected user preview */}
-          <div className="bg-white rounded-lg shadow-md p-6 flex flex-col">
-            {selectedUser ? (
-              <>
-                <img
-                  src={selectedUser.avatar}
-                  alt={selectedUser.first_name}
-                  className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl mb-4 border border-gray-200 shadow-sm mt-8"
-                />
-                <div className="w-full max-w-xs space-y-3 text-left leading-relaxed">
-                  <p className="text-sm text-gray-700">
-                    <strong>Email:</strong> {selectedUser.email}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <strong>First Name:</strong> {selectedUser.first_name}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <strong>Last Name:</strong> {selectedUser.last_name}
-                  </p>
-
-                  <button className="bg-gradient-to-r from-purple-800 through-purple-700 to-pink-700 hover:opacity-90 text-white font-semibold py-2 rounded w-full transition-all duration-300">
-                    Proceed
-                  </button>
-                </div>
-              </>
-            ) : (
-              <p className="text-gray-500 text-center mt-20">
+          {/* Right: User preview */}
+          <div className="bg-white rounded-lg shadow-md p-6 flex flex-col min-h-[400px] justify-center">
+            {userDetails || (
+              <p className="text-gray-500 text-center">
                 Select a user to view details
               </p>
             )}
@@ -135,8 +165,8 @@ const PaginatedList = () => {
         {/* Pagination */}
         <div className="flex flex-col sm:flex-row justify-center sm:justify-between items-center mt-6 gap-3 text-sm sm:text-base">
           <button
-            disabled={page === 1}
-            onClick={() => setPage(page - 1)}
+            disabled={page === 1 || loading}
+            onClick={() => handlePageChange(page - 1)}
             className="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50 w-full sm:w-auto"
           >
             Previous
@@ -145,8 +175,8 @@ const PaginatedList = () => {
             Page {page} of {totalPages}
           </span>
           <button
-            disabled={page === totalPages}
-            onClick={() => setPage(page + 1)}
+            disabled={page === totalPages || loading}
+            onClick={() => handlePageChange(page + 1)}
             className="px-4 py-2 bg-purple-700 text-white rounded disabled:opacity-50 w-full sm:w-auto"
           >
             Next
