@@ -1,3 +1,57 @@
+📘 FCMB Career Portal (React Project)
+
+This project is a responsive React.js web application simulating a simple Career Portal interface for FCMB.
+It demonstrates:
+
+API data fetching (using reqres.in)
+
+Component reusability
+
+Responsive layout design with Tailwind CSS
+
+Clean code structure with modularized components
+
+🚀 Features
+
+✅ Registration Page
+
+Users can enter their name and job.
+
+Data is submitted to a mock API (https://reqres.in/api/users) using fetch().
+
+Displays success or error messages.
+
+Automatically redirects to the User List page on success.
+
+Beautiful and mobile-responsive layout with a left-side background image and right-side form.
+
+✅ User List (Paginated List Page)
+
+Fetches user data from Reqres API (https://reqres.in/api/users?page=2).
+
+Displays user cards with avatar, email, and name.
+
+Clicking a user shows their details and a Proceed button.
+
+Paginated with Next and Previous buttons.
+
+Sidebar navigation included via a reusable Sidebar component.
+
+✅ Sidebar Component
+
+Includes FCMB logo and navigation menu.
+
+Responsive on small screens.
+
+Organized with adequate spacing between menu items.
+
+✅ Bottom Navigation Component
+
+Shows app features like Transfers, Airtime Top-up, QR Scanner, and Location.
+
+Extracted into a separate component (BottomNav.js) for reusability.
+
+Automatically behaves like a fixed bottom bar on mobile and inline footer on desktop.
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
