@@ -7,6 +7,8 @@ import {
 import { CiLocationArrow1, CiLocationOn } from "react-icons/ci";
 import { BsQrCode } from "react-icons/bs";
 import { FiUser } from "react-icons/fi";
+import BottomNav from "../component/BottomNav";
+
 
 export default function RegistrationPage() {
   const [name, setName] = useState("");
@@ -14,7 +16,6 @@ export default function RegistrationPage() {
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
-  // ✅ Form submission handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("Submitting...");
@@ -24,7 +25,7 @@ export default function RegistrationPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-api-key": "reqres-free-v1",
+          "x-api-key": "reqres-free-v1", // ✅ Include API key here
         },
         body: JSON.stringify({ name, job }),
       });
@@ -33,17 +34,12 @@ export default function RegistrationPage() {
 
       if (response.ok) {
         setMessage(`✅ Success! User ${data.name} created with ID: ${data.id}`);
-
-        // Reset form
         setName("");
         setJob("");
-
-        // ⏩ Redirect after short delay
-        setTimeout(() => {
-          navigate("/list");
-        }, 1500);
+        // ✅ Navigate to /list after 1 second
+        setTimeout(() => navigate("/list"), 1000);
       } else {
-        setMessage("❌ Failed to create user. Please try again.");
+        setMessage(`❌ Error: ${data.error || "Unknown error"}`);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -75,7 +71,7 @@ export default function RegistrationPage() {
 
           {/* Personal / Business Toggle */}
           <div className="flex justify-center mt-2">
-            <div className="flex justify-between items-center bg-[rgba(34,40,35,1)] bg-opacity-60 rounded-[20px] w-[290px] h-[45px] p-1 shadow-inner">
+            <div className="flex justify-between items-center bg-gray-500 bg-opacity-60 rounded-[20px] w-[290px] h-[45px] p-1 shadow-inner">
               <button className="flex-1 py-2 px-3 rounded-full bg-white text-purple-800 font-semibold text-sm shadow-md transition-all duration-300">
                 Personal
               </button>
@@ -122,7 +118,7 @@ export default function RegistrationPage() {
               type="submit"
               className="w-full py-3 bg-gradient-to-r from-purple-800 through-purple-700 to-pink-800 text-white font-semibold rounded-lg shadow-md hover:opacity-90 transition-all duration-300"
             >
-              Proceed →
+              Proceed
             </button>
           </form>
 
@@ -133,37 +129,9 @@ export default function RegistrationPage() {
             </p>
           )}
 
-          {/* Bottom Nav Toggle */}
-          <div className="flex justify-center mt-8 space-x-10 border-t pt-5">
-            {/* Transfers */}
-            <button className="flex flex-col items-center text-purple-800 hover:text-purple-600 transition">
-              <CiLocationArrow1 className="text-2xl mb-1" />
-              <span className="text-xs font-medium">Transfers</span>
-            </button>
+          {/* Bottom Nav */}
+          <BottomNav />
 
-            {/* Airtime Top-up */}
-            <button className="flex flex-col items-center text-purple-800 hover:text-purple-600 transition">
-              <FaMobileAlt className="text-2xl mb-1" />
-              <span className="text-xs font-medium">Airtime Top-up</span>
-            </button>
-
-            {/* QR Scanner */}
-            <div className="flex flex-col items-center text-purple-800 hover:text-purple-600 transition relative">
-              <div className="absolute -top-6 left-8">
-                <span className="bg-yellow-200 text-[10px] text-black px-2 py-[1px] rounded-full font-semibold shadow-sm">
-                  NEW
-                </span>
-              </div>
-              <BsQrCode className="text-2xl mb-1" />
-              <span className="text-xs font-medium">QR Scanner</span>
-            </div>
-
-            {/* Location */}
-            <button className="flex flex-col items-center text-purple-800 hover:text-purple-600 transition">
-              <CiLocationOn className="text-2xl mb-1" />
-              <span className="text-xs font-medium">Location</span>
-            </button>
-          </div>
         </div>
       </div>
     </div>

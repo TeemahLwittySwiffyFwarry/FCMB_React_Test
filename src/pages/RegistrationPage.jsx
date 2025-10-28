@@ -1,20 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  FaBriefcase,
-  FaMobileAlt,
-} from "react-icons/fa";
-import { CiLocationArrow1, CiLocationOn } from "react-icons/ci";
-import { BsQrCode } from "react-icons/bs";
+import { FaBriefcase } from "react-icons/fa";
 import { FiUser } from "react-icons/fi";
 import BottomNav from "../component/BottomNav";
-
 
 export default function RegistrationPage() {
   const [name, setName] = useState("");
   const [job, setJob] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user) navigate("/list");
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,7 +25,7 @@ export default function RegistrationPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-api-key": "reqres-free-v1", // ✅ Include API key here
+          "x-api-key": "reqres-free-v1",
         },
         body: JSON.stringify({ name, job }),
       });
@@ -33,10 +33,12 @@ export default function RegistrationPage() {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage(`✅ Success! User ${data.name} created with ID: ${data.id}`);
-        setName("");
-        setJob("");
-        // ✅ Navigate to /list after 1 second
+        setMessage(`✅ Welcome ${data.name || name}! Redirecting...`);
+
+        // ✅ Simulate login: store user in localStorage
+        localStorage.setItem("user", JSON.stringify({ id: data.id, name, job }));
+
+        // ✅ Navigate to /list after short delay
         setTimeout(() => navigate("/list"), 1000);
       } else {
         setMessage(`❌ Error: ${data.error || "Unknown error"}`);
@@ -52,9 +54,7 @@ export default function RegistrationPage() {
       {/* Left Side - Background Image */}
       <div
         className="w-1/2 bg-cover bg-center hidden md:block"
-        style={{
-          backgroundImage: "url('/public/bg.png')",
-        }}
+        style={{ backgroundImage: "url('/public/bg.png')" }}
       ></div>
 
       {/* Right Side */}
@@ -116,7 +116,7 @@ export default function RegistrationPage() {
             {/* Proceed Button */}
             <button
               type="submit"
-              className="w-full py-3 bg-gradient-to-r from-purple-800 through-purple-700 to-pink-800 text-white font-semibold rounded-lg shadow-md hover:opacity-90 transition-all duration-300"
+              className="w-full py-3 bg-gradient-to-r from-purple-800 via-purple-700 to-pink-800 text-white font-semibold rounded-lg shadow-md hover:opacity-90 transition-all duration-300"
             >
               Proceed
             </button>
@@ -131,7 +131,6 @@ export default function RegistrationPage() {
 
           {/* Bottom Nav */}
           <BottomNav />
-
         </div>
       </div>
     </div>

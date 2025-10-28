@@ -5,7 +5,20 @@ import { FiUser } from "react-icons/fi";
 import { PiGraduationCapLight } from "react-icons/pi";
 import { CiStar } from "react-icons/ci";
 import { FaChartLine } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 const Sidebar = () => {
+  const navigate = useNavigate();
+
+  // 🔹 Handle Logout
+  const handleLogout = () => {
+    // Optional confirmation
+    const confirmLogout = window.confirm("Are you sure you want to sign out?");
+    if (confirmLogout) {
+      localStorage.removeItem("user"); // clear user data
+      navigate("/"); // redirect to register/login
+    }
+  };
+
   return (
     <aside className="w-64 bg-gray-100 py-8 pl-8 flex flex-col shadow-lg min-h-screen">
       {/* Logo Section */}
@@ -45,8 +58,11 @@ const Sidebar = () => {
         </div>
       </nav>
 
-      {/* Sign Out */}
-      <div className="mt-auto flex items-center gap-4 text-red-500 cursor-pointer pt-10 border-t border-gray-200 hover:text-red-600 transition-all duration-200">
+      {/* 🔹 Sign Out */}
+      <div
+        onClick={handleLogout}
+        className="mt-auto flex items-center gap-4 text-red-500 cursor-pointer pt-10 border-t border-gray-200 hover:text-red-600 transition-all duration-200"
+      >
         <FaSignOutAlt /> <span>Sign out</span>
       </div>
     </aside>

@@ -1,10 +1,20 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import "./index.css";
 import App from "./App";
 import RegistrationPage from "./pages/RegistrationPage";
-import PaginationList from "./pages/PaginatedList"
+import PaginationList from "./pages/PaginatedList";
+
+// 🔒 Protected Route Component
+const ProtectedRoute = ({ children }) => {
+  const user = localStorage.getItem("user");
+  if (!user) {
+    // redirect if not logged in
+    return <Navigate to="/" replace />;
+  }
+  return children;
+};
 
 const router = createBrowserRouter([
   {
@@ -17,7 +27,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/list",
-        element: <PaginationList />,
+        element: (
+          <ProtectedRoute>
+            <PaginationList />
+          </ProtectedRoute>
+        ),
       },
     ],
   },
