@@ -3,50 +3,23 @@ import { useNavigate } from "react-router-dom";
 import { FaBriefcase } from "react-icons/fa";
 import { FiUser } from "react-icons/fi";
 import BottomNav from "../component/BottomNav";
+import { useRegisterUser } from "../hooks/useRegister";
 
 export default function RegistrationPage() {
   const [name, setName] = useState("");
   const [job, setJob] = useState("");
-  const [message, setMessage] = useState("");
   const navigate = useNavigate();
+  const { registerUser, message } = useRegisterUser(navigate);
 
-  // Redirect if already logged in
+  // ✅ Redirect if already logged in
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (user) navigate("/list");
   }, [navigate]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setMessage("Submitting...");
-
-    try {
-      const response = await fetch("https://reqres.in/api/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": "reqres-free-v1",
-        },
-        body: JSON.stringify({ name, job }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setMessage(`✅ Welcome ${data.name || name}! Redirecting...`);
-
-        // ✅ Simulate login: store user in localStorage
-        localStorage.setItem("user", JSON.stringify({ id: data.id, name, job }));
-
-        // ✅ Navigate to /list after short delay
-        setTimeout(() => navigate("/list"), 1000);
-      } else {
-        setMessage(`❌ Error: ${data.error || "Unknown error"}`);
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      setMessage("❌ Something went wrong. Please try again.");
-    }
+    registerUser(name, job);
   };
 
   return (

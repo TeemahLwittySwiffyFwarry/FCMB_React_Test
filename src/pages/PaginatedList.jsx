@@ -1,28 +1,13 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useState } from "react";
 import Sidebar from "../component/Sidebar";
 import { FaBars } from "react-icons/fa";
+import useUsers from "../hooks/useUser"; // ✅ import custom hook
 
 const PaginatedList = () => {
-  const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
   const [page, setPage] = useState(2);
-  const [totalPages, setTotalPages] = useState(1);
-  const [sidebarOpen, setSidebarOpen] = useState(false); // For mobile toggle
-
-  useEffect(() => {
-    axios
-      .get(`https://reqres.in/api/users?page=${page}`, {
-        headers: {
-          "x-api-key": "reqres-free-v1",
-        },
-      })
-      .then((res) => {
-        setUsers(res.data.data);
-        setTotalPages(res.data.total_pages);
-      })
-      .catch((err) => console.error("Error fetching users:", err));
-  }, [page]);
+  const { users, totalPages, loading, error } = useUsers(page);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col md:flex-row font-sans">
@@ -35,7 +20,6 @@ const PaginatedList = () => {
         <Sidebar />
       </div>
 
-      {/* Overlay for mobile sidebar */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black opacity-40 z-10 md:hidden"
@@ -48,7 +32,6 @@ const PaginatedList = () => {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-3">
-            {/* Hamburger menu for mobile */}
             <button
               className="md:hidden text-gray-700 text-2xl"
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -59,23 +42,28 @@ const PaginatedList = () => {
           </div>
 
           <div className="flex items-center gap-3">
-  <div className="flex items-center bg-purple-100 text-purple-700 px-3 py-1 rounded-full">
-    <img
-      src="https://randomuser.me/api/portraits/women/65.jpg"
-      alt="Profile"
-      className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border mr-2"
-    />
-    <span className="text-xs sm:text-sm font-medium">Kelvin Olanrewaju</span>
-  </div>
-</div>
-
+            <div className="flex items-center bg-purple-100 text-purple-700 px-3 py-1 rounded-full">
+              <img
+                src="https://randomuser.me/api/portraits/women/65.jpg"
+                alt="Profile"
+                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border mr-2"
+              />
+              <span className="text-xs sm:text-sm font-medium">
+                Kelvin Olanrewaju
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* User list grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left: List */}
           <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-4 space-y-3 overflow-y-auto">
-            {users.length > 0 ? (
+            {loading ? (
+              <p className="text-center text-gray-500">Loading users...</p>
+            ) : error ? (
+              <p className="text-center text-red-500">{error}</p>
+            ) : users.length > 0 ? (
               users.map((user) => (
                 <div
                   key={user.id}
@@ -132,9 +120,8 @@ const PaginatedList = () => {
                   </p>
 
                   <button className="bg-gradient-to-r from-purple-800 through-purple-700 to-pink-700 hover:opacity-90 text-white font-semibold py-2 rounded w-full transition-all duration-300">
-  Proceed
-</button>
-
+                    Proceed
+                  </button>
                 </div>
               </>
             ) : (
