@@ -38,7 +38,10 @@ export const usePaginatedUsers = (): UsePaginatedUsersReturn => {
         params: { page },
         signal: controller.signal,
         timeout: 10000,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": "reqres-free-v1",
+        },
       });
 
       // Simulate slight delay for smooth loader transition
